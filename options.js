@@ -8,7 +8,7 @@ module.exports = {
                 [{text: '0', callback_data: '0'}]
             ]
         })
-    }
+    },
 
     againOptions: {
         reply_markup: JSON.stringify({

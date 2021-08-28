@@ -19,7 +19,7 @@ const start = () => {
     bot.setMyCommands([
         {command: '/start', description: 'Начальное приветствие'},
         {command: '/cat', description: 'Присылает котиков'},
-        {command: '/info', description: 'Информация о пользователе'},
+        {command: '/link', description: 'Ссылка на бота'},
         {command: '/game', description: 'Игра "Угадай цифру"'},
     ])
 
@@ -28,20 +28,22 @@ const start = () => {
         const chatId = msg.chat.id;
 
         if (text === '/start'){
-            await bot.sendMessage(chatId, `Привет, ${msg.chat.first_name} !!!`)
-            await bot.sendSticker(chatId, 'https://tlgrm.ru/_/stickers/73a/aed/73aaedd6-70a6-40f1-ae0d-1c0ed846a5b3/3.webp')
+            await bot.sendMessage(chatId, `Привет, ${msg.chat.first_name} !!!`);
+            return bot.sendSticker(chatId, 'https://tlgrm.ru/_/stickers/73a/aed/73aaedd6-70a6-40f1-ae0d-1c0ed846a5b3/3.webp');
         }
         if (text === '/cat'){
-            await bot.sendMessage(chatId, 'Любишь котиков ? Я тоже, смотри какие милые )))');
+            return bot.sendMessage(chatId, 'Любишь котиков ? Я тоже, смотри какие милые )))');
         }
-        if (text === '/info'){
-            await bot.sendMessage(chatId, `Тебя зовут ${msg.from.first_name} ${msg.from.last_name}`);
+        if (text === '/link'){
+            const botLink = 't.me/Just_Lazy_bot'
+            await bot.sendSticker(chatId, 'https://tlgrm.ru/_/stickers/9df/619/9df6199a-ff6a-338d-9f74-625b0a647045/21.webp');
+            return bot.sendMessage(chatId, `Вот лови ссылочку на меня ${botLink}`);
         }
         if (text === '/game') {
             return startGame(chatId);
         }
 
-        return bot.sendMessage(chatId, 'Я тебя не понимаю, попробуй ещё раз')
+        return bot.sendMessage(chatId, 'Я тебя не понимаю, попробуй ещё раз');
 
     })
 
@@ -52,9 +54,10 @@ const start = () => {
             return startGame(chatId);
         }
         if (data === chats[chatId]){
-            return bot.sendMessage(chatId, `Поздравляю ты угадал, я загадывал цифру ${chats[chatId]}`, againOptions)
+            await bot.sendSticker(chatId, 'https://tlgrm.ru/_/stickers/9df/619/9df6199a-ff6a-338d-9f74-625b0a647045/1.webp');
+            return bot.sendMessage(chatId, `Поздравляю ты угадал, я загадывал цифру ${chats[chatId]}`, againOptions);
         }else {
-            await bot.sendMessage(chatId, `К сожалению ты не угадал, я загадывал цифру ${chats[chatId]}`, againOptions)
+            await bot.sendMessage(chatId, `К сожалению ты не угадал, я загадывал цифру ${chats[chatId]}`, againOptions);
         }
     })
 }

@@ -1,10 +1,11 @@
 const TelegramApi = require('node-telegram-bot-api')
-const {gameOptions, againOptions} = require('./options')
+const {gameOptions, againOptions, weatherOptions} = require('./options')
 const token = '1967797300:AAHt94MCeLFchX_4HHBpybRISWNr56HPeEk'
 const weatherApiKey = 'b5bce7a9107606889053a45d9d671b3e'
 const bot = new TelegramApi(token, {polling: true})
 const chats ={};
 const axios = require('axios')
+const yandexApiKey = 'AQVN0y0O2Nu6jb6IPZVP59tXzLBQAxa18XLp25P7'
 
 
 const startGame = async (chatId) => {
@@ -24,12 +25,14 @@ const start = () => {
         {command: '/weather', description: 'Прогноз погоды'}
     ])
 
+
     bot.on('message', async msg => {
 
         try {
             const text = msg.text;
             const chatId = msg.chat.id;
             const arrText = text.split(' ');
+
             if (text === '/start') {
                 await bot.sendMessage(chatId, `Привет, ${msg.chat.first_name} !!!`);
                 return bot.sendSticker(chatId, 'https://tlgrm.ru/_/stickers/9df/619/9df6199a-ff6a-338d-9f74-625b0a647045/19.webp');
@@ -52,7 +55,7 @@ const start = () => {
                 return startGame(chatId);
             }
             if (arrText[0] === '/weather') {
-                    const axiosConf = {
+                const axiosConf = {
                         method: 'GET',
                         url: `https://api.openweathermap.org/data/2.5/weather?q=${arrText[1]}&lang=ru&units=metric&APPID=${weatherApiKey}`,
                     }
@@ -86,6 +89,46 @@ Cейчас ${response.data.weather[0].description} ${response.data.main.temp}°
             await bot.sendMessage(chatId, `К сожалению ты не угадал, я загадывал цифру ${chats[chatId]}`, againOptions);
         }
     })
+
+    bot.on('voice', async msg => {
+        const chatId = msg.chat.id;
+        const stream = bot.getFileStream(msg.voice.file_id);
+
+        let chunks = [];
+        stream.on('data', chunk => chunks.push(chunk))
+        stream.on('end', () => {
+            const axiosConfig = {
+                method: 'POST',
+                url: 'https://stt.api.cloud.yandex.net/speech/v1/stt:recognize',
+                headers: {
+                    Authorization: 'Api-Key ' + yandexApiKey
+                },
+                data: Buffer.concat(chunks),
+            }
+
+            axios(axiosConfig).then(response => {
+                const text = response.data.result;
+                if (text === 'Как погода') {
+                    const axiosConf = {
+                        method: 'GET',
+                        url: `https://api.openweathermap.org/data/2.5/weather?q=Kaliningrad&lang=ru&units=metric&APPID=${weatherApiKey}`,
+                    }
+
+                    axios(axiosConf).then((response) => {
+                        return bot.sendMessage(chatId, `${response.data.name}\n 
+Cейчас ${response.data.weather[0].description} ${response.data.main.temp}°С\n
+Влажность: ${response.data.main.humidity}%\n 
+Атмосферное давление: ${response.data.main.pressure} гПа\n 
+Скорость ветра: ${response.data.wind.speed} м/c\n`)
+                    })
+
+                }
+                bot.sendMessage(chatId, `Чтобы посмотреть погоду в других городах, используйте /weather {Название города на английском}`)
+
+            })
+        })
+    })
+
 }
 
 start()

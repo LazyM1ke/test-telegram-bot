@@ -16,5 +16,13 @@ module.exports = {
                 [{text: 'Играть ещё раз', callback_data: 'again'}]
             ]
         })
+    },
+    weatherOptions: {
+        reply_markup: JSON.stringify({
+            keyboard: [
+                [{text: 'Moscow', callback_data: 'Moscow'}]
+            ]
+        })
+
     }
 }
